@@ -16,7 +16,7 @@ import imutils
 import schedule
 import time
 import cv2
-
+#edit by chrome
 
 class Config(object):
     SCHEDULER_API_ENABLED = True
