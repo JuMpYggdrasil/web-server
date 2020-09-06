@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<title>Home Assistant</title>
+		
+		<!-- jQuery first, then Bootstrap JS -->
+		<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
+		<!-- bootstrap 3.4.1 -->
+		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/bootstrap.min.css') }}">
+		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/bootstrap-theme.min.css') }}">
+		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/button.min.css') }}">
+		<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+		
+		<!-- custom -->
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+		<script type="text/javascript" src="{{ url_for('static', filename='js/fontawesome.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/plotly.min.js') }}"></script>
+		<!-- socket IO -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="http://momentjs.com/downloads/moment-with-locales.min.js"></script> 
+		<script type="text/javascript" charset="utf-8">
+			$(document).ready(function() {
+				var socket = io.connect('http://' + document.domain + ':' + location.port);
+				socket.on('connect', function() {
+					socket.emit('my event', {data: 'I\'m connected!'});
+				});
+				socket.on('temp', function(msg) {
+					var nDate = new Date();
+					$('#readingsUpdated').text(nDate.getHours() + 'h:' + nDate.getMinutes() +'m:' + nDate.getSeconds() + 's').html();
+					//$('#temperature').text(msg.data).html();//jquery id selector
+					$(".temp").eq(msg.pos).html(msg.data);//jquery class selector eq:index[]
+				});
+				socket.on('humid', function(msg) {
+					var nDate = new Date();
+					$('#readingsUpdated').text(nDate.getHours() + 'h:' + nDate.getMinutes() +'m:' + nDate.getSeconds() + 's').html();
+					$(".humid").eq(msg.pos).html(msg.data);
+				});
+				socket.on('refresh', function(msg) {
+					location.reload();
+				});
+			});
+
+			$(function(){
+				showTime();
+				setInterval('showTime()', 30000);
+				showChart();
+			});
+			function showTime() {
+				moment.locale('en-gb');
+				$("#show_thaidate").html(moment().format('LLLL'));
+			}
+			var timeFormat = 'hh:mm:ss';
+			function newDateString(hours, minutes, seconds) {
+				return moment().hour(hours).minute(minutes).second(seconds).format(timeFormat);
+			}
+			function showChart(){
+				var config = {responsive: true}
+				anDay = document.getElementById('graph1');
+				var humidityList = [{%- for item in queryDatas.humid[-1440:] %}
+										{{item|safe}},
+									{%- endfor %}];
+				var temperatureList = [{%- for item in queryDatas.temp[-1440:] %}
+										{{item|safe}},
+									{%- endfor %}];
+				var timeStampList = [{%- for item in queryDatas.timeStamp[-1440:] %}
+										'{{item|safe}}',
+									{%- endfor %}];	
+				var temperatureListMean = [];
+				for (var i = 0; i < 4; i++)
+				{
+					temperatureListMean[i] = (temperatureList[0] + temperatureList[1] + temperatureList[2] + temperatureList[3])/4.0;
+				}
+				for (var i = 4; i < 1440; i++)
+				{
+					var mean = (temperatureList[i] + temperatureList[i-1] + temperatureList[i+1] + temperatureList[i-2] + temperatureList[i+2] + temperatureList[i-3] + temperatureList[i+3] + temperatureList[i-4] + temperatureList[i+4])/9.0;
+					temperatureListMean[i] = mean;
+				}
+				var humidityListMean = [];
+				for (var i = 0; i < 4; i++)
+				{
+					humidityListMean[i] = (humidityList[0] + humidityList[1] + humidityList[2] + humidityList[3])/4.0;
+				}
+				for (var i = 4; i < 1440; i++)
+				{
+					var mean = (humidityList[i] + humidityList[i-1] + humidityList[i+1] + humidityList[i-2] + humidityList[i+2] + humidityList[i-3] + humidityList[i+3]+ humidityList[i-4] + humidityList[i+4])/9.0;
+					humidityListMean[i] = mean;
+				}
+				
+				var anDayTrace1 = {
+					x: timeStampList,
+					y: temperatureListMean,
+					marker: {color: 'LIGHTSEAGREEN'},
+					mode: 'lines',
+					name: 'temp',
+					line: {shape: 'spline'},
+					type: 'scatter'
+				};
+				var anDayTrace2 = {
+					x: timeStampList,
+					y: humidityListMean,
+					marker: {color: 'DODGERBLUE'},
+					mode: 'lines',
+					name: 'humid',
+					line: {shape: 'spline'},
+					type: 'scatter'
+				};
+				
+				var anDayData = [anDayTrace1,anDayTrace2];
+				var anDayLayout = {
+					title:'24 hours',
+					xaxis: {title: 'time'},
+					yaxis: {title: 'sensors'}
+				};
+				Plotly.newPlot( anDay, anDayData, anDayLayout, config);
+				
+				anHour = document.getElementById('graph2');
+				var anHourTrace1 = {
+					x: [{%- for item in queryDatas.timeStamp[-120:] %}
+							'{{item|safe}}',
+						{%- endfor %}],
+					y: [{%- for item in queryDatas.temp[-120:] %}
+							{{item|safe}},
+						{%- endfor %}],
+					marker: {color: 'LIGHTSEAGREEN'},
+					mode: 'lines+markers',
+					name: 'temp',
+					line: {shape: 'spline'},
+					type: 'scatter'
+				};
+				var anHourTrace2 = {
+					x: [{%- for item in queryDatas.timeStamp[-120:] %}
+							'{{item|safe}}',
+						{%- endfor %}],
+					y: [{%- for item in queryDatas.humid[-120:] %}
+							{{item|safe}},
+						{%- endfor %}],
+					marker: {color: 'DODGERBLUE'},
+					mode: 'lines+markers',
+					name: 'humid',
+					line: {shape: 'spline'},
+					type: 'scatter'
+				};
+				
+				var anHourData = [anHourTrace1,anHourTrace2];
+				var anHourLayout = {
+					title:'2 hours',
+					xaxis: {title: 'time'},
+					yaxis: {title: 'sensors'}
+				};
+				Plotly.newPlot( anHour, anHourData, anHourLayout, config);
+			}
+		</script>
+		<style>
+			#titleMain{font-family:"Comic Sans MS", Helvetica, sans-serif;}
+			.Ologo{color: white;font-size:4em;}
+			.affix {top: 0;width: 100%;z-index: 9999 !important;}
+			.jumbotron{font-family:"Comic Sans MS",Helvetica,sans-serif;margin-bottom:0px;background:teal;color: white;}
+			.affix + .container-fluid {padding-top: 65px;}
+			#show_thaidate,.jobCron{color: white !important;}
+			#timeSecion:before,#chartSecion:before,#buttonSection:before{display:block;height:60px;margin-top:-60px;visibility:hidden;content:"";}
+		</style>
+		
+	</head>
+	
+	<body>
+		<div class="jumbotron jumbotron-fluid text-center" id="titleMain">
+			<div class="container">
+				<a href="/" class="Ologo"><i class="fab fa-digital-ocean"></i>Home Assistant</a>
+				<p>Web Server & MQTT Broker</p>
+			</div>
+		</div>
+		<nav class="navbar navbar-inverse" data-spy="affix" data-offset-top="197">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>                        
+					</button>
+					<a class="navbar-brand" href="/"><i class="fas fa-home"></i></a>
+				</div>
+				<div class="collapse navbar-collapse" id="myNavbar">
+					<ul class="nav navbar-nav">
+						<li><a href="#buttonSection"><i class="fas fa-mouse"></i></a></li>
+						<li><a href="#timeSecion"><i class="fas fa-clock"></i></a></li>
+						<li><a href="#chartSecion"><i class="fas fa-chart-line"></i></a></li>
+						<li><p class="navbar-text active"> </p></li>
+						<li><a href="/videoStream"><i class="fas fa-video"></i></a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><span id="show_thaidate"></span></li>
+						<div class="jobCron">Start time: {{jobCron["startHour"]}}.{{jobCron["startMinute"]}} /Stop time: {{jobCron["stopHour"]}}.{{jobCron["stopMinute"]}}<div>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		
+		<div class="container-fluid" id="buttonSection">
+			<div class="row">
+			{% for device in devices %}
+			<div class="col-sm-6 col-md-4 col-lg-3">
+				<div class="bs-component">
+				{% if devices[device].floor.startswith('fl1') %}
+					<div class="panel panel-info">
+				{% elif devices[device].floor.startswith('fl2') %}	
+					<div class="panel panel-success">
+				{% elif devices[device].floor.startswith('fl3') %}	
+					<div class="panel panel-warning">
+				{% else %}
+					<div class="panel panel-default">
+				{% endif %}
+						<div class="panel-heading">
+							<div class="panel-title pull-left">
+								<div>{{ devices[device].floor }} {{ devices[device].position }} {{ devices[device].object }}</div>
+								<div>{{ devices[device].cmd }}</div>
+							</div>
+							<div class="panel-title pull-right">
+								{% if devices[device].th_enable == 'True' %}
+									<span>Temp: </span><span class="temp">{{ devices[device].temp }}</span><br>
+									<span>Humid: </span><span class="humid">{{ devices[device].humid }}</span>
+								{% endif %}
+							</div>
+							<div class="clearfix"></div>
+						</div>
+						<div class="panel-body">
+							<div>
+						{% if devices[device].type == 'on/off' %}
+							{% if devices[device].state == 'True' %}
+								<div>is currently <strong>on</strong></div>
+								<div class="btn-group btn-group-lg">
+									<a href="/{{device}}/{{devices[device].topic}}/off" class="btn btn-lg btn-default" role="button">Turn off</a>
+							{% else %}
+								<div>is currently <strong>off</strong></div>
+								<div class="btn-group btn-group-lg">
+									<a href="/{{device}}/{{devices[device].topic}}/on" class="btn btn-lg btn-primary" role="button">Turn on</a>
+							{% endif %}
+									<!-- <a href="/setting" class="btn btn-primary"><i class="fas fa-cog"></i></a> -->
+									<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+										<span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu" role="menu">
+									{% if devices[device].time_enable == 'False' %}
+										<li><a href="/addSched/{{device}}">Add to Schedule</a></li>
+									{% else %}
+										<li><a href="/rmSched/{{device}}">Remove from Schedule</a></li>
+									{% endif %}	
+									</ul>
+								</div>
+								{% if devices[device].time_enable == 'True' %}
+								<span>
+									<i class="fas fa-clock"></i>
+								</span>
+								{% endif %}
+							</div>
+						{% else %}
+							<div>Toggle <strong>on/off</strong></div>
+								<div class="btn-group btn-group-lg">
+									<a href="/{{device}}/{{devices[device].topic}}/click" class="btn btn-lg btn-dirty-green" role="button">Turn on/off</a>
+								</div>
+							</div>
+						{% endif %}
+						</div>
+						<!-- <div class="panel-footer">footer</div> -->
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+			</div>
+			<h3>Sensor Reading (updated <span id="readingsUpdated"></span>)</h3>
+			<!-- <h3>devicesDisp: <span id="devicesDisp">{{ devices }}</span></h3> -->
+			<!-- <h3>queryDatas: <span id="queryDatasDisp">{{ queryDatas.timeStamp }}</span></h3> -->
+		</div>
+		<div class="container-fluid" id="timeSecion">
+			<div class="row">
+				<div class="col-xs-12">
+					<form class="form-inline" action = "/startTime" method = "POST">
+						<div class="form-group">
+							<label for="startTime1">Time to Start </label>
+							<select class="form-control" type="submit" id="startTime1" name="startTime1">
+						{% with %}
+							{% for i in range(0,24,1) %}
+								<option>{{ '%02d' % i }}</option>
+							{% endfor %}
+							</select>
+							<label for="startTime2">:</label>
+							<select class="form-control" id="startTime2" name="startTime2">
+							{% for i in range(0,60,5) %}
+								<option>{{ '%02d' % i }}</option>
+							{% endfor %}
+						{% endwith %}
+							</select>
+							<button class="btn btn-default" type="submit" value="submit">
+								<i class="fas fa-bell"></i>
+							</button>
+						</div>
+					</form>
+					<form class="form-inline" action = "/stopTime" method = "POST">
+						<div class="form-group">
+							<label for="stopTime1">Time to Stop </label>
+							<select class="form-control" id="stopTime1" name="stopTime1">
+						{% with %}
+							{% for i in range(0,24,1) %}
+								<option>{{ '%02d' % i }}</option>
+							{% endfor %}
+							</select>
+							<label for="stopTime2">:</label>
+							<select class="form-control" id="stopTime2" name="stopTime2">
+							{% for i in range(0,60,5) %}
+								<option>{{ '%02d' % i }}</option>
+							{% endfor %}
+						{% endwith %}
+							</select>
+							<button class="btn btn-default" type="submit" value="submit">
+								<i class="fas fa-bell-slash"></i>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid" id="chartSecion">
+			<div class="row">
+				<div class="col-xs-12 col-md-6">
+					<div id="graph1"></div>
+				</div>
+				<div class="col-xs-12 col-md-6">
+					<div id="graph2"></div>
+				</div>
+			</div>
+		</div>		
+	</body>
+</html>

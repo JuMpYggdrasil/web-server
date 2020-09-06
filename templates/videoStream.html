@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<title>Home Assistant</title>
+		
+		<!-- jQuery first, then Bootstrap JS -->
+		<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
+		<!-- bootstrap 3.4.1 -->
+		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/bootstrap.min.css') }}">
+		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/bootstrap-theme.min.css') }}">
+		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/button.min.css') }}">
+		<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+		
+		<!-- custom -->
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+		<script type="text/javascript" src="{{ url_for('static', filename='js/fontawesome.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/plotly.min.js') }}"></script>
+		<!-- socket IO -->
+		<script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/moment-with-locales.min.js') }}"></script>
+		<script type="text/javascript" charset="utf-8">
+			$(function(){
+				showTime();
+				setInterval('showTime()', 30000);
+			});
+			function showTime() {
+				moment.locale('en-gb');
+				$("#show_thaidate").html(moment().format('LLLL'));
+			}			
+		</script>
+		<style>
+			#titleMain{font-family:"Comic Sans MS", Helvetica, sans-serif;}
+			.Ologo{color: white;font-size:4em;}
+			.affix {top: 0;width: 100%;z-index: 9999 !important;}
+			.jumbotron{font-family:"Comic Sans MS",Helvetica,sans-serif;margin-bottom:0px;background:teal;color: white;}
+			.affix + .container-fluid {padding-top: 65px;}
+			#show_thaidate{color: white !important;}
+		</style>
+		
+	</head>
+	
+	<body>
+		<div class="jumbotron jumbotron-fluid text-center" id="titleMain">
+			<div class="container">
+				<a href="/" class="Ologo"><i class="fab fa-digital-ocean"></i>Home Assistant</a>
+				<p>Web Server & MQTT Broker</p>
+			</div>
+		</div>
+		<nav class="navbar navbar-inverse" data-spy="affix" data-offset-top="197">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>                        
+					</button>
+					<a class="navbar-brand" href="/"><i class="fas fa-home"></i></a>
+				</div>
+				<div class="collapse navbar-collapse" id="myNavbar">
+					<ul class="nav navbar-nav">
+						<!-- <li><a href="#buttonSection"><i class="fas fa-mouse"></i></a></li> -->
+						<!-- <li><a href="#timeSecion"><i class="fas fa-clock"></i></a></li> -->
+						<!-- <li><a href="#streamingSecion"><i class="fas fa-video"></i></a></li> -->
+						<!-- <li><a href="#chartSecion"><i class="fas fa-chart-line"></i></a></li> -->
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><span id="show_thaidate"></span></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		
+		<div class="container-fluid" id="streamingSecion">
+			<div class="row">
+				<div class="col-xs-12">
+					<h3>Video Streaming</h3>
+					<img src="{{ url_for('video_feed') }}">
+				</div>
+			</div>
+		</div>	
+	</body>
+</html>
