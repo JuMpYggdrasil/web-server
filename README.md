@@ -2,4 +2,5 @@
  flask on RPI
 
 home/pi/flask/web-server
-git pull "here"
+
+$git pull "here"
