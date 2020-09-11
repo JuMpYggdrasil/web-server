@@ -30,7 +30,8 @@ def create_table(conn, create_table_sql):
 		print(e)
 		
 def select_sensors(conn,qrol):
-	sql = 'SELECT '+qrol+' FROM sensors ORDER BY timeStamp DESC LIMIT 1500'
+	# sql = 'SELECT '+qrol+' FROM sensors ORDER BY timeStamp DESC LIMIT 1500'
+	sql = 'SELECT '+qrol+' FROM sensors WHERE timeStamp BETWEEN date(\'now\',\'-1 day\') and date(\'now\')';
 	# sql = 'SELECT '+qrol+' FROM sensors'
 	cur = conn.cursor()
 	cur.execute(sql)
