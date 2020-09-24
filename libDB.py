@@ -99,10 +99,11 @@ def clearOldDB() :
 	
 	try:
 		sqliteConnection = create_connection(database)
-		last_month = datetime.now() - relativedelta(months=1)
+		last_2_month = datetime.now() - relativedelta(months=2)
+		#last_month = datetime.now() - relativedelta(months=1)
 		#last_minutes = datetime.now() - relativedelta(minutes=10)
 		cursor = sqliteConnection.cursor()
-		data_tuple=(last_month)
+		data_tuple=(last_2_month)
 		#data_tuple=(last_minutes)
 		delete_sensors(sqliteConnection,data_tuple)
 		
@@ -111,7 +112,7 @@ def clearOldDB() :
 		cursor.close()
 
 	except sqlite3.Error as error:
-		print("Failed to insert Python variable into sqlite table", error)
+		print("Failed to delete old data", error)
 	finally:
 		if (sqliteConnection):
 			sqliteConnection.close()
