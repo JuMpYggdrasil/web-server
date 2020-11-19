@@ -246,7 +246,7 @@ def main():
 		return "error", 500
 
 @app.route("/debug")
-def main():
+def debug():
     templateData = {
         'devices' : devices,
         'sensors' : sensors,
