@@ -215,28 +215,39 @@ mqtt_client.connect("127.0.0.1",1883,60)
 mqtt_client.loop_start()
 
 
-@app.route("/")
+@app.route("/",methods=['GET', 'POST'])
 def main():
-    queryDatas['temp'] = queryDB("temp")
-    queryDatas['humid'] = queryDB("humid")
-    queryDatas['timeStamp'] = queryDB("timeStamp")
+	try:
+	
+		if request.method == 'GET':
+			queryDatas['temp'] = queryDB("temp")
+			queryDatas['humid'] = queryDB("humid")
+			queryDatas['timeStamp'] = queryDB("timeStamp")
 
-    # print(queryDatas['timeStamp'])
+			# print(queryDatas['timeStamp'])
 
-    templateData = {
-        'devices' : devices,
-        'sensors' : sensors,
-        'jobCron': jobCron,
-        'queryDatas':queryDatas
-    }
-    
-    try:
-        save_pickle_obj(devices,'devices')
-    except:
-        print("error")
+			templateData = {
+				'devices' : devices,
+				'sensors' : sensors,
+				'jobCron': jobCron,
+				'queryDatas':queryDatas
+			}
+			
+			try:
+				save_pickle_obj(devices,'devices')
+			except:
+				print("error")
 
-    # Pass the template data into the template main.html and return it to the user
-    return render_template('main.html', async_mode=socketio.async_mode, **templateData)
+			# Pass the template data into the template main.html and return it to the user
+			return render_template('main.html', async_mode=socketio.async_mode, **templateData)
+		elif request.method == 'POST':
+			return "error", 200
+		else:
+			return "unknown",500
+			
+	except Exception as e:
+		return "error", 500
+
 
 # The function below is executed when someone requests a URL with the device number and action in it:
 @app.route("/<device>/<floor>/<position>/<object>/<cmd>/<ctrl>",methods = ['POST', 'GET'])
