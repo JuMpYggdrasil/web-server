@@ -144,7 +144,7 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("fl1/#")#  + single-level wild card, # multi-level wild card, 
     client.subscribe("fl2/#")
     client.subscribe("fl3/#")
-    client.subscribe("tele/#")
+    client.subscribe("#")
     
 def whx(ownval,owndicts):
     for x in owndicts:
@@ -155,7 +155,7 @@ def whx(ownval,owndicts):
 # The callback for when a PUBLISH message is received from the ESP8266.
 def on_message(client, userdata, message):
     # socketio.emit('my variable')
-    # print("Received message '" + str(message.payload.decode('utf8')) + "' on topic '"+ message.topic + "' with QoS " + str(message.qos))
+    print("Received message '" + str(message.payload.decode('utf8')) + "' on topic '"+ message.topic + "' with QoS " + str(message.qos))
     if message.topic.startswith('fl'):
         topicMsgSplit = message.topic.split("/")
         slash_count = message.topic.count("/")
@@ -188,7 +188,7 @@ def on_message(client, userdata, message):
                         # print("refresh")
                 # print("feedback update")
         else:
-            print("message.topic error")
+            print("mqtt message.topic error")
     elif message.topic.startswith('tele'):
         #print("tasmota")
         topicMsgSplit = message.topic.split("/")#[0]:tele,[1]:name,[2]:classify
