@@ -31,7 +31,8 @@ def create_table(conn, create_table_sql):
 		
 def select_sensors(conn,qrol):
 	# sql = 'SELECT '+qrol+' FROM sensors ORDER BY timeStamp DESC LIMIT 1500'
-	sql = 'SELECT '+qrol+' FROM sensors WHERE timeStamp BETWEEN date(\'now\',\'-1 day\') and date(\'now\')';
+	sql = 'SELECT '+qrol+' FROM sensors WHERE timeStamp BETWEEN datetime("now","-24 hours") and datetime("now","+24 hours")';
+	# sql = 'SELECT '+qrol+' FROM sensors WHERE timeStamp BETWEEN date("now") and date("now","+1 day")';
 	# sql = 'SELECT '+qrol+' FROM sensors'
 	cur = conn.cursor()
 	cur.execute(sql)
@@ -142,10 +143,16 @@ def queryDB(qroll) :
 	return rows
 
 def main():
+	## test add data into DB
 	# logDB("fl0","35.2","12.4","DHT","true")
 	# logDB("fl0","37.2","18.4","DHT","true")
-	clearOldDB()
-	#x = queryDB("humid")
+
+	## test clear old data in DB
+	# clearOldDB()
+
+	## display humid list
+	x = queryDB("humid")
+	print(x)
 
 if __name__ == '__main__':
 	main()
