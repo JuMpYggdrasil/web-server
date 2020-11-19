@@ -245,6 +245,19 @@ def main():
 	except Exception as e:
 		return "error", 500
 
+@app.route("/debug",methods=['GET', 'POST'])
+def main():
+    templateData = {
+        'devices' : devices,
+        'sensors' : sensors,
+        'jobCron': jobCron,
+        'queryDatas':queryDatas
+        }
+    
+    
+    # Pass the template data into the template main.html and return it to the user
+    return render_template('main.html', async_mode=socketio.async_mode, **templateData)
+
 
 # The function below is executed when someone requests a URL with the device number and action in it:
 @app.route("/<device>/<floor>/<position>/<object>/<cmd>/<ctrl>",methods = ['POST', 'GET'])
