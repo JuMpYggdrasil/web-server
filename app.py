@@ -231,7 +231,7 @@ def main():
 			'sensors' : sensors,
 			'jobCron': jobCron,
 			'queryDatas':queryDatas
-		}
+            }
 		
 		try:
 			save_pickle_obj(devices,'devices')
