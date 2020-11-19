@@ -219,31 +219,28 @@ mqtt_client.loop_start()
 def main():
 	try:
 	
-		if request.method == 'GET':
-			queryDatas['temp'] = queryDB("temp")
-			queryDatas['humid'] = queryDB("humid")
-			queryDatas['timeStamp'] = queryDB("timeStamp")
+	
+		queryDatas['temp'] = queryDB("temp")
+		queryDatas['humid'] = queryDB("humid")
+		queryDatas['timeStamp'] = queryDB("timeStamp")
 
-			# print(queryDatas['timeStamp'])
+		# print(queryDatas['timeStamp'])
 
-			templateData = {
-				'devices' : devices,
-				'sensors' : sensors,
-				'jobCron': jobCron,
-				'queryDatas':queryDatas
-			}
-			
-			try:
-				save_pickle_obj(devices,'devices')
-			except:
-				print("error")
+		templateData = {
+			'devices' : devices,
+			'sensors' : sensors,
+			'jobCron': jobCron,
+			'queryDatas':queryDatas
+		}
+		
+		try:
+			save_pickle_obj(devices,'devices')
+		except:
+			print("error")
 
-			# Pass the template data into the template main.html and return it to the user
-			return render_template('main.html', async_mode=socketio.async_mode, **templateData)
-		elif request.method == 'POST':
-			return "error", 200
-		else:
-			return "unknown",500
+		# Pass the template data into the template main.html and return it to the user
+		return render_template('main.html', async_mode=socketio.async_mode, **templateData)
+
 			
 	except Exception as e:
 		return "error", 500
