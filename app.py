@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 from flask import Flask,g,render_template,request,Response
+from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from flask_apscheduler import APScheduler
 from libDB import logDB,clearOldDB,queryDB
@@ -33,6 +34,7 @@ lock = threading.Lock()
 
 app = Flask(__name__)
 app.config.from_object(Config())
+CORS(app)
 socketio = SocketIO(app)
 
 # initialize the video stream and allow the camera sensor to
