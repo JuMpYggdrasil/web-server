@@ -19,6 +19,14 @@ import time
 import cv2
 #edit by chrome
 
+
+"""
+Date storage
+- hot    : pickle devices data
+- cold   :
+- frozen : sqlite3
+""" 
+
 class Config(object):
     SCHEDULER_API_ENABLED = True
     SECRET_KEY = 'secret!'
