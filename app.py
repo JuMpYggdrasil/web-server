@@ -217,7 +217,7 @@ mqtt_client.loop_start()
 
 @app.route("/",methods=['GET', 'POST'])
 def main():
-	if request.method == 'GET':
+    if request.method == 'GET':
         queryDatas['temp'] = queryDB("temp")
         queryDatas['humid'] = queryDB("humid")
         queryDatas['timeStamp'] = queryDB("timeStamp")
