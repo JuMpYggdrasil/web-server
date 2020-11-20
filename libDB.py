@@ -5,7 +5,7 @@ from datetime import datetime,date,timedelta
 from dateutil.relativedelta import relativedelta
 import json
 
-database = "/home/pi/Sensors_Database/sensorData.db"
+maindatabase = "/home/pi/Sensors_Database/sensorData.db"
 			
 def create_connection(db_file):
 	conn = None
@@ -78,7 +78,7 @@ def logDB(name,temp,humid,value,staus) :
 									VALUES (?, ?, ?, ?, ?, ?)
 								;"""
 	try:
-		sqliteConnection = create_connection(database)
+		sqliteConnection = create_connection(maindatabase)
 		create_table(sqliteConnection, sql_create_sensors_table)
 		dateTimeValue = datetime.now()
 		cursor = sqliteConnection.cursor()
@@ -99,7 +99,7 @@ def logDB(name,temp,humid,value,staus) :
 def clearOldDB() :
 	
 	try:
-		sqliteConnection = create_connection(database)
+		sqliteConnection = create_connection(maindatabase)
 		last_2_month = datetime.now() - relativedelta(months=2)
 		#last_month = datetime.now() - relativedelta(months=1)
 		#last_minutes = datetime.now() - relativedelta(minutes=10)
@@ -122,7 +122,7 @@ def clearOldDB() :
 def queryDB(qroll) :
 	rows = []
 	try:
-		sqliteConnection = create_connection(database)
+		sqliteConnection = create_connection(maindatabase)
 		cursor = sqliteConnection.cursor()
 		rowsDummy = select_sensors(sqliteConnection,qroll)
 		rows = [item for t in rowsDummy for item in t]
