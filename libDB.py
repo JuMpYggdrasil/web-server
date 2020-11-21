@@ -58,7 +58,7 @@ def delete_all_sensors(conn):
     :param conn: Connection to the SQLite database
     :return:
     """
-    sql = 'DELETE FROM sensors'
+    sql = 'DELETE FROM sensors'# DELETE FROM sensors WHERE id='1';
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
