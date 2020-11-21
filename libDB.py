@@ -65,7 +65,7 @@ def delete_all_sensors(conn):
 
 def logDB(name,temp,humid,value,staus) :
     sql_create_sensors_table = """ CREATE TABLE IF NOT EXISTS sensors (
-                                    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+                                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                                     name TEXT NOT NULL,
                                     temp TEXT,
                                     humid TEXT,
