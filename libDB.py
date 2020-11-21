@@ -65,24 +65,25 @@ def delete_all_sensors(conn):
 
 def logDB(name,temp,humid,value,staus) :
     sql_create_sensors_table = """ CREATE TABLE IF NOT EXISTS sensors (
-                                    id INTEGER PRIMARY KEY,
+                                    id INTEGER AUTO_INCREMENT PRIMARY KEY,
                                     name TEXT NOT NULL,
                                     temp TEXT,
                                     humid TEXT,
                                     value TEXT,
                                     staus TEXT,
-                                    timeStamp DATETIME
+                                    timeStamp DATETIME DEFAULT CURRENT_TIMESTAMP
                                 ); """
     sqlite_insert_with_param = """INSERT INTO sensors (
-                                    name,temp,humid,value,staus,timeStamp)
-                                    VALUES (?, ?, ?, ?, ?, ?)
+                                    name,temp,humid,value,staus)
+                                    VALUES (?, ?, ?, ?, ?)
                                 ;"""
     try:
         sqliteConnection = create_connection(maindatabase)
         create_table(sqliteConnection, sql_create_sensors_table)
         dateTimeValue = datetime.now()
         cursor = sqliteConnection.cursor()
-        data_tuple = (name,temp,humid,value,staus,dateTimeValue)
+        data_tuple = (name,temp,humid,value,staus)
+        #data_tuple = (name,temp,humid,value,staus,dateTimeValue)
         cursor.execute(sqlite_insert_with_param, data_tuple)
         
         sqliteConnection.commit()
