@@ -145,7 +145,7 @@ def queryDB(qroll) :
 
 def main():
     ## test add data into DB , create table if not exist
-    # logDB("fl0","35.2","12.4","DHT","true")
+    logDB("fl0","35.2","12.4","DHT","true")
     # logDB("fl0","37.2","18.4","DHT","true")
 
     ## test clear old data in DB
